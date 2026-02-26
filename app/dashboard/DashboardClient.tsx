@@ -16,9 +16,9 @@ export default function DashboardClient() {
     <div>
       <Navbar />
       <main className="max-w-4xl mx-auto p-6">
-        <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
+        <h1 className="mb-4 text-3xl font-semibold text-foreground">Dashboard</h1>
         {docs.length === 0 ? (
-          <div className="text-gray-600">No documents yet. Create one to get started.</div>
+          <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 text-muted shadow-xl shadow-black/20 backdrop-blur-md">No documents yet. Create one to get started.</div>
         ) : (
           <div className="grid gap-4">
             {docs.map((d) => (

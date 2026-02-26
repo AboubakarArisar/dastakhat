@@ -29,7 +29,7 @@ export default function DocumentCard({ doc }: { doc: any }) {
   }
 
   return (
-    <div className="rounded-lg p-4 bg-card border border-surface/50 shadow-md hover:shadow-lg transition-shadow">
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-primary/15">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <div className="font-semibold text-foreground">{doc.template}</div>
@@ -38,8 +38,8 @@ export default function DocumentCard({ doc }: { doc: any }) {
         <div className="text-sm text-muted">{new Date(doc.created_at).toLocaleString()}</div>
       </div>
       <div className="mt-4 flex gap-3">
-        <button onClick={handleDownload} className="rounded px-3 py-2 bg-primary text-black font-medium hover:bg-primary-600 transition">Download</button>
-        <button onClick={handleSendEmail} className="rounded px-3 py-2 border border-surface/50 text-muted hover:bg-surface/60 transition">Send Email</button>
+        <button onClick={handleDownload} className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-600">Download</button>
+        <button onClick={handleSendEmail} className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2 text-sm font-medium text-foreground transition hover:bg-slate-800/70">Send Email</button>
       </div>
     </div>
   );

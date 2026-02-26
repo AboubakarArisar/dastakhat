@@ -3,16 +3,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "#0f172a", /* slate-900 */
-        surface: "#0b1220",
-        card: "#0f172a",
-        foreground: "#e6eef8",
+        background: "#0b1220",
+        surface: "#121d31",
+        card: "#111a2c",
+        foreground: "#eaf1fb",
         primary: {
-          DEFAULT: '#06b6d4', /* cyan-500 */
-          600: '#0891b2'
+          DEFAULT: '#3b82f6',
+          600: '#2563eb'
         },
-        muted: '#94a3b8',
-        accent: '#7c3aed'
+        muted: '#9eb0c9',
+        accent: '#60a5fa'
       },
     },
   },

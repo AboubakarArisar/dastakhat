@@ -1,27 +1,28 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const { data: session } = useSession();
   return (
-    <header className="w-full bg-surface border-b border-surface/60">
-      <div className="site-container flex items-center justify-between py-4 px-4">
+    <header className="sticky top-0 z-30 w-full border-b border-surface/70 bg-surface/70 backdrop-blur-md">
+      <div className="site-container flex items-center justify-between px-4 py-4">
         <a href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md bg-gradient-to-br from-primary to-accent flex items-center justify-center text-black font-bold">S</div>
+          <Image src="/lightlogo.png" alt="Signeasy logo" width={40} height={40} className="h-10 w-10 rounded-lg object-cover" priority />
           <div className="text-lg font-semibold">Signeasy</div>
         </a>
         <nav className="flex items-center gap-4">
-          <a href="/product" className="text-sm text-muted hover:text-foreground">Product</a>
-          <a href="/create" className="text-sm text-muted hover:text-foreground">Create</a>
-          <a href="/dashboard" className="text-sm text-muted hover:text-foreground">Dashboard</a>
+          <a href="/product" className="text-sm text-muted transition hover:text-foreground">Product</a>
+          <a href="/create" className="text-sm text-muted transition hover:text-foreground">Create</a>
+          <a href="/dashboard" className="text-sm text-muted transition hover:text-foreground">Dashboard</a>
           {session ? (
             <div className="flex items-center gap-3">
               <div className="text-sm text-muted">{session.user?.email || session.user?.name}</div>
-              <button onClick={() => signOut()} className="text-sm rounded px-3 py-1 border border-surface/50 hover:bg-surface/60">Sign out</button>
+              <button onClick={() => signOut()} className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-slate-900/40 px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-slate-800/70">Sign out</button>
             </div>
           ) : (
-            <button onClick={() => signIn()} className="text-sm rounded bg-primary px-3 py-1 text-black">Sign in</button>
+            <button onClick={() => signIn()} className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-primary-600">Sign in</button>
           )}
         </nav>
       </div>

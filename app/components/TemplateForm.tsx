@@ -77,18 +77,18 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
       <div className="grid gap-4 sm:grid-cols-2">
         {placeholders.map((p) => (
           <div key={p}>
-            <label className="block text-sm font-medium text-gray-700">{p.replace(/_/g, " ")}</label>
+            <label className="block text-sm font-medium text-foreground/90">{p.replace(/_/g, " ")}</label>
             <input
               value={fields[p]}
               onChange={(e) => setFields({ ...fields, [p]: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-200 px-3 py-2 bg-white"
+              className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
         ))}
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={handlePreview} className="rounded border border-primary/20 px-3 py-2 text-primary hover:bg-surface/50 transition">Preview</button>
-        <button type="submit" className="rounded bg-primary px-4 py-2 text-black font-medium" disabled={loading}>
+        <button type="button" onClick={handlePreview} className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-slate-800/70">Preview</button>
+        <button type="submit" className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-600" disabled={loading}>
           {loading ? "Generating..." : "Generate PDF"}
         </button>
       </div>

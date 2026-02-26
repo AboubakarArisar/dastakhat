@@ -9,9 +9,9 @@ export default function Features() {
   return (
     <section className="mt-12 grid gap-6 sm:grid-cols-2">
       {items.map((it) => (
-        <div key={it.title} className="rounded-lg p-6 bg-surface border border-surface/60 shadow-sm hover:shadow-md transform hover:-translate-y-1 transition">
+        <div key={it.title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-primary/15">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center text-black font-semibold">{it.title[0]}</div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-sm font-semibold text-white">{it.title[0]}</div>
             <div>
               <h3 className="font-semibold text-lg text-foreground">{it.title}</h3>
               <p className="text-muted mt-2">{it.desc}</p>
