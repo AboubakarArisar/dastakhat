@@ -28,7 +28,13 @@ export async function POST(req: Request) {
     const pdfBytes = await generatePdfFromText(templateText);
     const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
 
-    const id = await saveDocument({ template: templateId, clientName: fields.client_name || "", metadata: fields, pdfBase64 });
+    let id = null;
+    try {
+      id = await saveDocument({ template: templateId, clientName: fields.client_name || "", metadata: fields, pdfBase64 });
+    } catch (dbErr: any) {
+      // don't fail the whole request if DB is down; return PDF to user
+      console.warn("Failed to save document to DB:", dbErr?.message || dbErr);
+    }
 
     return NextResponse.json({ id, pdfBase64 });
   } catch (err: any) {
