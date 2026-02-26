@@ -14,9 +14,9 @@ Client agrees to pay {{payment_amount}} {{payment_currency}}. Payment terms: {{p
 
 Start Date: {{start_date}}. End Date: {{end_date}}.
 
-4. Intellectual Property
+4. General Terms
 
-Ownership of work: {{ip_terms}}.
+Any additional agreed terms: {{additional_terms}}.
 
 Signature:
 

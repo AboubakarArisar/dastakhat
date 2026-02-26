@@ -11,6 +11,7 @@ export default function CreateClient() {
   const [mergedPreview, setMergedPreview] = useState<string | null>(null);
   const [tab, setTab] = useState<"template" | "custom">("template");
   const [customText, setCustomText] = useState<string>("# New Document\n\nWrite your document here...");
+  const [templateLoadError, setTemplateLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/templates")
@@ -20,8 +21,26 @@ export default function CreateClient() {
 
   useEffect(() => {
     if (!selected) return;
-    fetch(`/api/templates/${selected}`).then((r) => r.json()).then((d) => setTemplateText(d.text || ""));
+    setPdfBase64(null);
+    setMergedPreview(null);
+    setTemplateText("");
+    setTemplateLoadError(null);
+    fetch(`/api/templates/${selected}`)
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d?.error || "Failed to load template");
+        setTemplateText(d.text || "");
+      })
+      .catch((err) => {
+        setTemplateText("");
+        setTemplateLoadError(err?.message || "Failed to load template");
+      });
   }, [selected]);
+
+  useEffect(() => {
+    setPdfBase64(null);
+    setMergedPreview(null);
+  }, [tab]);
 
   async function handleGenerateCustom() {
     const res = await fetch("/api/generate-pdf-from-text", {
@@ -78,7 +97,13 @@ export default function CreateClient() {
               {selected ? (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-xl shadow-black/20 backdrop-blur-md">
-                    <TemplateForm templateText={templateText} templateId={selected} onGenerated={(b64) => setPdfBase64(b64)} onPreview={(m) => setMergedPreview(m)} />
+                    {templateLoadError ? (
+                      <div className="rounded-lg border border-rose-400/35 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+                        {templateLoadError}
+                      </div>
+                    ) : (
+                      <TemplateForm templateText={templateText} templateId={selected} onGenerated={(b64) => setPdfBase64(b64)} onPreview={(m) => setMergedPreview(m)} />
+                    )}
                   </div>
                   <div>
                     <button onClick={() => { if (mergedPreview) { const blob = new Blob([mergedPreview], { type: 'text/markdown' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `preview-${selected}.md`; a.click(); URL.revokeObjectURL(url); } }} className="btn-secondary mr-2 px-3 py-2">Download Preview</button>

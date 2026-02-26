@@ -37,9 +37,12 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
   }, [placeholders]);
 
   const [loading, setLoading] = useState(false);
+  const missingFields = placeholders.filter((p) => !String(fields[p] ?? "").trim());
+  const canGenerate = placeholders.length > 0 && missingFields.length === 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!canGenerate) return;
     setLoading(true);
     try {
       const res = await fetch("/api/generate-pdf", {
@@ -81,14 +84,28 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
             <input
               value={fields[p]}
               onChange={(e) => setFields({ ...fields, [p]: e.target.value })}
+              required
               className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
         ))}
       </div>
+      {placeholders.length === 0 ? (
+        <div className="rounded-lg border border-amber-400/35 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+          No placeholders found in this template.
+        </div>
+      ) : missingFields.length > 0 ? (
+        <div className="rounded-lg border border-amber-400/35 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+          Fill all required values before generating PDF.
+        </div>
+      ) : (
+        <div className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+          All template values provided. Ready to generate.
+        </div>
+      )}
       <div className="flex gap-2">
         <button type="button" onClick={handlePreview} className="btn-secondary">Preview</button>
-        <button type="submit" className="btn-primary" disabled={loading}>
+        <button type="submit" className="btn-primary" disabled={loading || !canGenerate}>
           {loading ? "Generating..." : "Generate PDF"}
         </button>
       </div>
