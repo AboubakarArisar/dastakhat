@@ -87,8 +87,8 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
         ))}
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={handlePreview} className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-slate-900/40 px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-slate-800/70">Preview</button>
-        <button type="submit" className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-600" disabled={loading}>
+        <button type="button" onClick={handlePreview} className="btn-secondary">Preview</button>
+        <button type="submit" className="btn-primary" disabled={loading}>
           {loading ? "Generating..." : "Generate PDF"}
         </button>
       </div>
