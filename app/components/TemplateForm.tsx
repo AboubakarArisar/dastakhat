@@ -14,6 +14,17 @@ type SignatureCanvasProps = {
   onChange: (value: string) => void;
 };
 
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 text-white/90">
+      <path
+        d="M7 3a1 1 0 0 1 1 1v1h8V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1Zm12 8H5v8h14v-8Zm0-4H5v2h14V7Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 function SignatureCanvas({ label, value, onChange }: SignatureCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
@@ -170,6 +181,7 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
 
   function formatFieldLabel(fieldName: string) {
     const normalized = fieldName
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
       .replace(/[_-]+/g, " ")
       .trim()
       .split(/\s+/)
@@ -178,9 +190,8 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
     if (normalized.length === 0) return fieldName;
 
     return normalized
-      .map((part, index) => {
+      .map((part) => {
         const lower = part.toLowerCase();
-        if (index === 0) return lower;
         return lower.charAt(0).toUpperCase() + lower.slice(1);
       })
       .join("");
@@ -232,19 +243,28 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
             {isSignatureField(p) ? (
               <SignatureCanvas
                 label={formatFieldLabel(p)}
-                value={fields[p]}
+                value={fields[p] ?? ""}
                 onChange={(nextValue) => setFields((prev) => ({ ...prev, [p]: nextValue }))}
               />
             ) : (
               <>
                 <label className="block text-sm font-medium text-foreground/90">{formatFieldLabel(p)}</label>
-                <input
-                  type={isDateField(p) ? "date" : "text"}
-                  value={fields[p]}
-                  onChange={(e) => setFields((prev) => ({ ...prev, [p]: e.target.value }))}
-                  required
-                  className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-white outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
+                <div className={isDateField(p) ? "relative" : ""}>
+                  <input
+                    type={isDateField(p) ? "date" : "text"}
+                    value={fields[p] ?? ""}
+                    onChange={(e) => setFields((prev) => ({ ...prev, [p]: e.target.value }))}
+                    required
+                    className={`mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-white outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                      isDateField(p) ? "date-input-dark pr-11" : ""
+                    }`}
+                  />
+                  {isDateField(p) && (
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                      <CalendarIcon />
+                    </span>
+                  )}
+                </div>
               </>
             )}
           </div>
