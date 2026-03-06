@@ -20,6 +20,6 @@ This Agreement is governed by the laws of {{governing_law}}.
 
 Signature:
 
-Disclosing Party: {{your_name}}
+Disclosing Party: {{disclosing_party_signature}}
 
-Receiving Party: {{client_name}}
+Receiving Party: {{receiving_party_signature}}

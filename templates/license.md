@@ -20,6 +20,6 @@ Standard warranties: {{warranties}}.
 
 Signature:
 
-Licensor: {{your_name}}
+Licensor: {{licensor_signature}}
 
-Licensee: {{client_name}}
+Licensee: {{licensee_signature}}

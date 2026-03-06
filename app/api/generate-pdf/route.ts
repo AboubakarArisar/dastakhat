@@ -35,13 +35,15 @@ export async function POST(req: Request) {
     function escapeRegex(s: string) {
       return s.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&");
     }
+    const isSignatureField = (key: string) => /signature/i.test(key);
     for (const key of Object.keys(inputFields)) {
+      if (isSignatureField(key)) continue;
       const k = escapeRegex(key);
       const re = new RegExp(`{{\\s*${k}\\s*}}|{\\s*${k}\\s*}`, "g");
       templateText = templateText.replace(re, String(inputFields[key] ?? ""));
     }
 
-    const pdfBytes = await generatePdfFromText(templateText);
+    const pdfBytes = await generatePdfFromText(templateText, { signatureFields: inputFields });
     const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
 
     let id = null;

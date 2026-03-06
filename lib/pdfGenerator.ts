@@ -1,9 +1,18 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-export async function generatePdfFromText(text: string) {
+type PdfGenerationOptions = {
+  signatureFields?: Record<string, string>;
+};
+
+function isDataImage(value: string) {
+  return /^data:image\/(png|jpe?g);base64,/i.test(value);
+}
+
+export async function generatePdfFromText(text: string, options: PdfGenerationOptions = {}) {
   const pdfDoc = await PDFDocument.create();
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const signatureFields = options.signatureFields || {};
 
   const marginX = 48;
   const marginTop = 56;
@@ -19,6 +28,7 @@ export async function generatePdfFromText(text: string) {
   let y = height - marginTop;
 
   const maxTextWidth = width - marginX * 2;
+  const placeholderRegex = /{{\s*([a-zA-Z0-9_\-]+)\s*}}|{\s*([a-zA-Z0-9_\-]+)\s*}/g;
 
   function ensureSpace(requiredHeight: number) {
     if (y - requiredHeight < marginBottom) {
@@ -48,9 +58,71 @@ export async function generatePdfFromText(text: string) {
     return lines;
   }
 
+  function extractSignatureFromLine(line: string) {
+    placeholderRegex.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = placeholderRegex.exec(line))) {
+      const key = match[1] || match[2];
+      const value = String(signatureFields[key] ?? "");
+      if (isDataImage(value)) {
+        return { key, value };
+      }
+    }
+    return null;
+  }
+
+  async function drawSignatureLine(line: string, signatureDataUrl: string) {
+    const cleanText = line.replace(placeholderRegex, "").trimEnd();
+    const textSize = bodySize;
+    const textHeight = bodyLineHeight;
+    const targetHeight = 42;
+    const targetWidth = 150;
+    const verticalGap = 8;
+
+    ensureSpace(textHeight + targetHeight + verticalGap);
+
+    if (cleanText) {
+      page.drawText(cleanText, {
+        x: marginX,
+        y,
+        size: textSize,
+        font: fontRegular,
+        color: rgb(0.1, 0.1, 0.12),
+      });
+      y -= textHeight;
+    }
+
+    let image;
+    if (/^data:image\/png;base64,/i.test(signatureDataUrl)) {
+      const base64 = signatureDataUrl.replace(/^data:image\/png;base64,/i, "");
+      image = await pdfDoc.embedPng(base64);
+    } else {
+      const base64 = signatureDataUrl.replace(/^data:image\/jpe?g;base64,/i, "");
+      image = await pdfDoc.embedJpg(base64);
+    }
+
+    const scale = Math.min(targetWidth / image.width, targetHeight / image.height);
+    const drawWidth = Math.max(80, image.width * scale);
+    const drawHeight = Math.max(24, image.height * scale);
+
+    page.drawImage(image, {
+      x: marginX,
+      y: y - drawHeight + 8,
+      width: drawWidth,
+      height: drawHeight,
+    });
+    y -= drawHeight + verticalGap;
+  }
+
   const rawLines = text.replace(/\r\n/g, "\n").split("\n");
   for (const rawLine of rawLines) {
     const line = rawLine.trimEnd();
+
+    const signature = extractSignatureFromLine(line);
+    if (signature) {
+      await drawSignatureLine(line, signature.value);
+      continue;
+    }
 
     if (!line.trim()) {
       ensureSpace(bodyLineHeight * 0.7);

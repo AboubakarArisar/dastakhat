@@ -20,6 +20,6 @@ Any additional agreed terms: {{additional_terms}}.
 
 Signature:
 
-Freelancer: {{your_name}}
+Freelancer: {{freelancer_signature}}
 
-Client: {{client_name}}
+Client: {{client_signature}}
