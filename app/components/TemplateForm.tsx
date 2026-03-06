@@ -243,7 +243,7 @@ export default function TemplateForm({ templateText, templateId, onGenerated, on
                   value={fields[p]}
                   onChange={(e) => setFields((prev) => ({ ...prev, [p]: e.target.value }))}
                   required
-                  className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-white outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </>
             )}
