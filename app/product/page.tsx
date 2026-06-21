@@ -7,7 +7,7 @@ export default function ProductPage() {
       <Navbar />
       <main className="max-w-5xl mx-auto px-6 py-16">
         <h1 className="text-4xl font-semibold">Product</h1>
-        <p className="mt-3 max-w-3xl text-muted">Signeasy helps freelancers and creators create professional legal documents quickly. Below are the product highlights and what you can do.</p>
+        <p className="mt-3 max-w-3xl text-muted">Dastakhat helps freelancers and creators create and sign professional legal documents quickly. Below are the product highlights and what you can do.</p>
 
         <section className="mt-8 grid gap-6 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-primary/15">
@@ -20,7 +20,7 @@ export default function ProductPage() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-primary/15">
             <h3 className="font-medium">Document Tracking</h3>
-            <p className="mt-2 text-muted">History view in the dashboard with metadata and download links.</p>
+            <p className="mt-2 text-muted">History view under Documents with status and download links.</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-primary/15">
             <h3 className="font-medium">Email</h3>

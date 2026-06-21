@@ -1,26 +1,52 @@
 @import "tailwindcss";
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
+
+/* ------------------------------------------------------------------
+   Design tokens (Tailwind v4).
+   v4 does NOT read tailwind.config.cjs automatically, so the semantic
+   color utilities (bg-primary, text-muted, bg-surface, ...) are defined
+   here via @theme. This is the single source of truth for the palette.
+------------------------------------------------------------------- */
+@theme {
+  --color-background: #0b1220;
+  --color-surface: #121d31;
+  --color-card: #111a2c;
+  --color-foreground: #eaf1fb;
+  --color-muted: #9eb0c9;
+
+  --color-primary: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-accent: #60a5fa;
+
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  --font-sans: var(--font-geist-sans), 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue';
+
+  --radius-xl2: 1.25rem;
+}
 
 :root {
-  --font-head: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue';
   --bg-start: #0b1220;
   --bg-end: #111a2c;
 }
 
 @layer base {
   html, body, #__next {
-    height: 100%;
+    min-height: 100%;
     background:
-      radial-gradient(1200px 520px at 85% -10%, rgba(59, 130, 246, 0.16), transparent 60%),
+      radial-gradient(1200px 620px at 85% -10%, rgba(59, 130, 246, 0.18), transparent 60%),
+      radial-gradient(900px 500px at 5% 0%, rgba(96, 165, 250, 0.10), transparent 55%),
       linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
-    color: #eaf1fb;
-    font-family: var(--font-geist-sans), var(--font-head);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
 
   h1, h2, h3, h4 {
-    color: #eaf1fb;
+    color: var(--color-foreground);
+    letter-spacing: -0.02em;
   }
 
   a {
@@ -45,7 +71,12 @@
   }
 }
 
-.site-container { max-width: 1100px; margin: 0 auto; }
+.site-container { max-width: 1180px; margin: 0 auto; }
+
+/* Anchor-nav UX: smooth scroll, and offset targets so the sticky navbar
+   doesn't cover a section's heading when you jump to it. */
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 5.5rem; }
 
 @layer components {
   .sleek-panel {
@@ -56,13 +87,45 @@
     backdrop-filter: blur(12px);
   }
 
+  /* Soft card used across landing + dashboard */
+  .surface-card {
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(17, 26, 44, 0.6);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(12px);
+  }
+
+  .gradient-text {
+    background-image: linear-gradient(90deg, #93c5fd, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: rgba(59, 130, 246, 0.10);
+    padding: 0.3rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #93c5fd;
+  }
+
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     border-radius: 0.75rem;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #ffffff;
     transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
@@ -80,37 +143,135 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     border-radius: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #eaf1fb;
-    transition: background-color 200ms ease;
+    transition: background-color 200ms ease, border-color 200ms ease;
   }
 
   .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.28);
   }
 
-/* Keep native date controls usable while showing a white calendar icon in dark UI. */
-.date-input-dark {
-  color-scheme: dark;
+  /* Status badges for documents */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 9999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .badge-draft { color: #cbd5e1; background: rgba(148, 163, 184, 0.12); border-color: rgba(148, 163, 184, 0.28); }
+  .badge-sent  { color: #93c5fd; background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.32); }
+  .badge-signed { color: #6ee7b7; background: rgba(52, 211, 153, 0.12); border-color: rgba(52, 211, 153, 0.32); }
+
+  /* Keep native date controls usable while showing a white calendar icon in dark UI. */
+  .date-input-dark {
+    color-scheme: dark;
+  }
+
+  .date-input-dark::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .date-input-dark::-webkit-datetime-edit,
+  .date-input-dark::-webkit-datetime-edit-fields-wrapper,
+  .date-input-dark::-webkit-datetime-edit-day-field,
+  .date-input-dark::-webkit-datetime-edit-month-field,
+  .date-input-dark::-webkit-datetime-edit-year-field,
+  .date-input-dark::-webkit-datetime-edit-text {
+    color: #ffffff;
+  }
+
+  /* Elevated product card with a soft top highlight */
+  .glass-card {
+    position: relative;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 40%),
+      rgba(17, 26, 44, 0.65);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+  }
+
+  /* Thin gradient ring used for emphasis cards */
+  .ring-gradient {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(rgba(17, 26, 44, 0.85), rgba(17, 26, 44, 0.85)) padding-box,
+      linear-gradient(135deg, rgba(96, 165, 250, 0.55), rgba(59, 130, 246, 0.05) 45%, rgba(96, 165, 250, 0.35)) border-box;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #7aa2e3;
+  }
 }
 
-.date-input-dark::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  cursor: pointer;
+/* ------------------------------------------------------------------
+   Decorative utilities + motion (outside @layer so they always win)
+------------------------------------------------------------------- */
+
+/* Faint grid + dotted backdrop for sections */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
 }
 
-.date-input-dark::-webkit-datetime-edit,
-.date-input-dark::-webkit-datetime-edit-fields-wrapper,
-.date-input-dark::-webkit-datetime-edit-day-field,
-.date-input-dark::-webkit-datetime-edit-month-field,
-.date-input-dark::-webkit-datetime-edit-year-field,
-.date-input-dark::-webkit-datetime-edit-text {
-  color: #ffffff;
-}
+/* Blurred color orb */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes drawSig {
+  to { stroke-dashoffset: 0; }
+}
+
+.animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-float { animation: floatY 7s ease-in-out infinite; }
+.delay-1 { animation-delay: 0.08s; }
+.delay-2 { animation-delay: 0.16s; }
+.delay-3 { animation-delay: 0.24s; }
+.delay-4 { animation-delay: 0.32s; }
+
+.sig-path {
+  stroke-dasharray: 520;
+  stroke-dashoffset: 520;
+  animation: drawSig 2.4s ease-out 0.4s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-fade-up, .animate-float, .sig-path { animation: none; }
+  .sig-path { stroke-dashoffset: 0; }
+}

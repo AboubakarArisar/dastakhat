@@ -8,8 +8,17 @@ let connecting: Promise<typeof mongoose> | null = null;
 
 export async function connectMongoose() {
   if (mongoose.connection.readyState === 1) return mongoose;
-  if (!connecting) connecting = mongoose.connect(uri, { autoIndex: true });
-  await connecting;
+  if (!connecting) {
+    // Fail fast (5s) so callers can fall back to local storage instead of hanging.
+    connecting = mongoose.connect(uri, { autoIndex: true, serverSelectionTimeoutMS: 5000 });
+  }
+  try {
+    await connecting;
+  } catch (err) {
+    // Reset so a later call can retry rather than re-throwing a stale rejection.
+    connecting = null;
+    throw err;
+  }
   return mongoose;
 }
 

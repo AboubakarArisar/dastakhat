@@ -3,11 +3,11 @@ import fs from "fs";
 import path from "path";
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(req: Request, { params }: RouteContext) {
-  const resolvedParams = typeof (params as any)?.then === "function" ? await params : params;
+  const resolvedParams = await params;
   const id = resolvedParams?.id;
   if (!id) return NextResponse.json({ error: "Missing template id" }, { status: 400 });
   const templatesDir = path.join(process.cwd(), "templates");

@@ -1,17 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import TemplateForm from "../components/TemplateForm";
+import SigningRequestForm from "../components/SigningRequestForm";
+import PageBackground from "../components/PageBackground";
+import { getOwnerKey } from "../../lib/clientId";
 
 export default function CreateClient() {
   const [templates, setTemplates] = useState<any[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string>("");
   const [templateText, setTemplateText] = useState("");
-  const [pdfBase64, setPdfBase64] = useState<string | null>(null);
-  const [mergedPreview, setMergedPreview] = useState<string | null>(null);
-  const [tab, setTab] = useState<"template" | "custom">("template");
-  const [customText, setCustomText] = useState<string>("# New Document\n\nWrite your document here...");
   const [templateLoadError, setTemplateLoadError] = useState<string | null>(null);
+  const [tab, setTab] = useState<"template" | "custom">("template");
+
+  const [customText, setCustomText] = useState<string>("# New Document\n\nWrite your document here...");
+  const [pdfBase64, setPdfBase64] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [customError, setCustomError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/templates")
@@ -20,9 +24,10 @@ export default function CreateClient() {
   }, []);
 
   useEffect(() => {
-    if (!selected) return;
-    setPdfBase64(null);
-    setMergedPreview(null);
+    if (!selected) {
+      setTemplateText("");
+      return;
+    }
     setTemplateText("");
     setTemplateLoadError(null);
     fetch(`/api/templates/${selected}`)
@@ -37,28 +42,46 @@ export default function CreateClient() {
       });
   }, [selected]);
 
-  useEffect(() => {
-    setPdfBase64(null);
-    setMergedPreview(null);
-  }, [tab]);
-
-  async function handleGenerateCustom() {
-    const res = await fetch("/api/generate-pdf-from-text", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: customText, title: "custom" }),
-    });
-    const data = await res.json();
-    if (data?.pdfBase64) setPdfBase64(data.pdfBase64);
+  // Generate a PDF from the Markdown and download it straight away.
+  async function handleDownloadPdf() {
+    setGenerating(true);
+    setCustomError(null);
+    try {
+      const res = await fetch("/api/generate-pdf-from-text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: customText, title: "custom", ownerKey: getOwnerKey() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.pdfBase64) throw new Error(data?.error || "Failed to generate PDF");
+      setPdfBase64(data.pdfBase64);
+      const a = document.createElement("a");
+      a.href = `data:application/pdf;base64,${data.pdfBase64}`;
+      a.download = "document.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err: any) {
+      setCustomError(err?.message || "Failed to generate PDF");
+    } finally {
+      setGenerating(false);
+    }
   }
 
   return (
-    <div>
+    <div className="relative min-h-screen">
+      <PageBackground />
       <Navbar />
-      <main className="site-container p-6">
-        <h1 className="mb-4 text-3xl font-semibold text-foreground">Create Document</h1>
+      <main className="site-container px-6 py-10">
+        <div className="animate-fade-up">
+          <span className="eyebrow">Create</span>
+          <h1 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">Create a document</h1>
+          <p className="mt-2 text-muted">
+            Pick a template to send for signature, or write a custom document and download it yourself.
+          </p>
+        </div>
 
-        <div className="mb-4 flex gap-2">
+        <div className="mt-6 mb-6 flex gap-2">
           <button
             onClick={() => setTab("template")}
             className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
@@ -67,7 +90,7 @@ export default function CreateClient() {
                 : "border-white/15 bg-white/5 text-muted hover:bg-white/10 hover:text-foreground"
             }`}
           >
-            From Template
+            Template → send to sign
           </button>
           <button
             onClick={() => setTab("custom")}
@@ -77,72 +100,62 @@ export default function CreateClient() {
                 : "border-white/15 bg-white/5 text-muted hover:bg-white/10 hover:text-foreground"
             }`}
           >
-            Custom Document
+            Custom document
           </button>
         </div>
 
         {tab === "template" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-xl shadow-black/20 backdrop-blur-md">
-              <label className="block text-sm font-medium text-foreground/90">Template</label>
-              <select className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20" onChange={(e) => setSelected(e.target.value)}>
-                <option value="">Select template</option>
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-              <div className="mt-3 text-sm text-muted">Tip: fill the placeholders and Preview before generating.</div>
-            </div>
-            <div className="sm:col-span-2">
-              {selected ? (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 shadow-xl shadow-black/20 backdrop-blur-md">
-                    {templateLoadError ? (
-                      <div className="rounded-lg border border-rose-400/35 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
-                        {templateLoadError}
-                      </div>
-                    ) : (
-                      <TemplateForm templateText={templateText} templateId={selected} onGenerated={(b64) => setPdfBase64(b64)} onPreview={(m) => setMergedPreview(m)} />
-                    )}
-                  </div>
-                  <div>
-                    <button onClick={() => { if (mergedPreview) { const blob = new Blob([mergedPreview], { type: 'text/markdown' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `preview-${selected}.md`; a.click(); URL.revokeObjectURL(url); } }} className="btn-secondary mr-2 px-3 py-2">Download Preview</button>
-                    {pdfBase64 && (
-                      <a href={`data:application/pdf;base64,${pdfBase64}`} download={`document-${selected}.pdf`} className="btn-primary">Download PDF</a>
-                    )}
-                  </div>
-                  {mergedPreview && (
-                    <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/60 p-3 shadow-lg shadow-black/15 backdrop-blur-md">
-                      <h4 className="font-medium">Preview</h4>
-                      <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap rounded-lg bg-background/40 p-3 text-sm text-foreground">{mergedPreview}</pre>
-                    </div>
-                  )}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-1">
+              <div className="glass-card p-5">
+                <label className="block text-sm font-medium text-foreground/90">Template</label>
+                <select
+                  value={selected}
+                  className="mt-1 block w-full rounded-lg border border-white/15 bg-slate-900/40 px-3 py-2.5 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  onChange={(e) => setSelected(e.target.value)}
+                >
+                  <option value="">Select a template</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+                <div className="mt-3 text-sm text-muted">
+                  Fill in the details, sign your part, and send a link to the other party to sign theirs.
                 </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2">
+              {templateLoadError ? (
+                <div className="rounded-lg border border-rose-400/35 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+                  {templateLoadError}
+                </div>
+              ) : selected && templateText ? (
+                <SigningRequestForm templateId={selected} templateText={templateText} />
               ) : (
-                <div className="text-muted">Choose a template to edit placeholders.</div>
+                <div className="glass-card p-8 text-center text-muted">Choose a template to get started.</div>
               )}
             </div>
           </div>
         ) : (
-          <div>
-            <label className="block text-sm font-medium text-foreground/90">Custom document (Markdown)</label>
-            <textarea value={customText} onChange={(e) => setCustomText(e.target.value)} className="mt-1 block h-64 w-full rounded-lg border border-white/15 bg-slate-900/40 p-3 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <div className="mt-3 flex gap-2">
-              <button onClick={handleGenerateCustom} className="btn-primary">Generate PDF</button>
-              <button onClick={() => {
-                const blob = new Blob([customText], { type: 'text/markdown' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `custom-doc.md`;
-                a.click();
-                URL.revokeObjectURL(url);
-              }} className="btn-secondary">Download Markdown</button>
+          <div className="max-w-3xl">
+            <label className="block text-sm font-medium text-foreground/90">Custom document</label>
+            <p className="mt-1 text-sm text-muted">Write your content below — it’s converted into a clean, formatted PDF when you download.</p>
+            <textarea
+              value={customText}
+              onChange={(e) => setCustomText(e.target.value)}
+              className="mt-2 block h-64 w-full rounded-lg border border-white/15 bg-slate-900/40 p-3 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button onClick={handleDownloadPdf} disabled={generating} className="btn-primary">
+                {generating ? "Preparing PDF…" : "Download PDF"}
+              </button>
+              {pdfBase64 && !generating && (
+                <span className="text-sm text-emerald-300">PDF ready — saved to your downloads.</span>
+              )}
             </div>
-            {pdfBase64 && (
-              <div className="mt-4">
-                <a href={`data:application/pdf;base64,${pdfBase64}`} download={`document-custom.pdf`} className="btn-primary">Download PDF</a>
-              </div>
+            {customError && (
+              <div className="mt-3 rounded-lg border border-danger/35 bg-danger/10 px-3 py-2 text-sm text-danger">{customError}</div>
             )}
           </div>
         )}

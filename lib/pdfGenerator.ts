@@ -11,8 +11,8 @@ function isDataImage(value: string) {
 export async function generatePdfFromText(text: string, options: PdfGenerationOptions = {}) {
   const pdfDoc = await PDFDocument.create();
   const fontRegular = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-  const fontBold = await pdfDoc.embedFont(StandardFonts.TimesBold);
-  const fontItalic = await pdfDoc.embedFont(StandardFonts.TimesItalic);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
   const signatureFields = options.signatureFields || {};
 
   const marginX = 62;
@@ -149,7 +149,7 @@ export async function generatePdfFromText(text: string, options: PdfGenerationOp
       page.drawText(`${label}:`, {
         x: marginX,
         y,
-        size: textSize,
+        size: bodySize,
         font: fontBold,
         color: rgb(0.1, 0.1, 0.12),
       });
