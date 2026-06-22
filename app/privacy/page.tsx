@@ -119,8 +119,8 @@ const SECTIONS: { heading: string; body: React.ReactNode }[] = [
     body: (
       <p>
         Questions about privacy? Reach out at{" "}
-        <a href="mailto:hello@dastakhat.app" className="text-accent underline-offset-2 hover:underline">
-          hello@dastakhat.app
+        <a href="mailto:aboubakar.dev@gmail.com" className="text-accent underline-offset-2 hover:underline">
+          aboubakar.dev@gmail.com
         </a>
         .
       </p>
