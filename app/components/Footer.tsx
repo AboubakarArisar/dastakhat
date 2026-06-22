@@ -26,7 +26,7 @@ export default function Footer() {
         <div>
           <div className="text-sm font-semibold text-foreground">Company</div>
           <ul className="mt-4 space-y-2.5 text-sm">
-            <li><a href="/product" className="text-muted transition hover:text-foreground">About</a></li>
+            <li><a href="/about" className="text-muted transition hover:text-foreground">About</a></li>
             <li><a href="/privacy" className="text-muted transition hover:text-foreground">Privacy</a></li>
             <li><a href="/terms" className="text-muted transition hover:text-foreground">Terms</a></li>
           </ul>
